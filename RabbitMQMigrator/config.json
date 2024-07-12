@@ -1,0 +1,16 @@
+{
+  "SourceServer": {
+    "HostName": "192.168.80.124",
+    "UserName": "godel",
+    "Password": "iLoo2eiNg5xienee",
+    "ManagementPort": 15672,
+    "AMQPPort": 5672
+  },
+  "TargetServer": {
+    "Url": "localhost",
+    "UserName": "guest",
+    "Password": "guest",
+    "ManagementPort": 15672,
+    "AMQPPort": 5672
+  }
+}
