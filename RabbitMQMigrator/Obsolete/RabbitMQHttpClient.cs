@@ -5,12 +5,13 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQMigrator;
+namespace RabbitMQMigrator.Obsolete;
 
 public class RabbitMQHttpClient : IDisposable
 {
     private readonly HttpClient httpClient;
 
+    [Obsolete("It replaced with EasyNetQ.Management.Client library")]
     public RabbitMQHttpClient(string url, string userName, string password)
     {
         httpClient = new HttpClient { BaseAddress = new Uri(url) };

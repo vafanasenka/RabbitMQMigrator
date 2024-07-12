@@ -13,14 +13,15 @@ public enum LogType
     Create_Settings_Start,
     Create_Settings_Done,
 
-    Print_Settings_Start,
-    Print_Settings_Done,
-    Print_Exchanges_Start,
-    Print_Exchange_Done,
-    Print_Queues_Start,
-    Print_Queue_Done,
-    Print_Bindings_Start,
-    Print_Binding_Done,
+    // log for debug & test
+    Log_Settings_Start,
+    Log_Settings_Done,
+    Log_Exchanges_Start,
+    Log_Exchange_Done,
+    Log_Queues_Start,
+    Log_Queue_Done,
+    Log_Bindings_Start,
+    Log_Binding_Done,
 
     Migrate_Messages_Start,
     Migrate_Messages_Done,
