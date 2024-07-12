@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 
-namespace RabbitMQMigrator;
+namespace RabbitMQMigrator.Factories;
 
-public class ServerModelFactory
+public static class ServerModelFactory
 {
     public static ServerModel Create(JToken configuration)
     {

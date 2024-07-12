@@ -4,6 +4,7 @@ using System;
 
 namespace RabbitMQMigrator;
 
+[Obsolete("It not tested, just as an general idea")]
 public class MessageMigrator
 {
     public static void MigrateMessages(IConnection sourceConnection, IConnection targetConnection, string queueName)

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EasyNetQ.Management.Client;
+using RabbitMQMigrator.Factories;
+using System;
 using System.Threading.Tasks;
 
 namespace RabbitMQMigrator;
@@ -30,7 +32,7 @@ public class Program
         /*
         Logger.Log(LogType.Connect, "Connecting to Target server...");
         // AMQP connection
-        using var targetConnection = RabbitMQConnector.Connect(targetHostName, targetAMQPPort, targetUserName, targetPassword);
+        using var targetConnection = RabbitMQConnector.Connect(targetServer.HostName, targetServer.AMQPPort, targetServer.UserName, targetServer.Password);
         Logger.Log(LogType.Connected);
         */
 
@@ -38,14 +40,14 @@ public class Program
         Console.ReadKey();
 
         Logger.Log(LogType.Get_Settings_Start, "Fetching settings from Source server...");
-        using var sourceHttpClient = new RabbitMQHttpClient($"http://{sourceServer.HostName}:{sourceServer.ManagementPort}", sourceServer.UserName, sourceServer.Password);
-        var settings = await RabbitMQMigrator.GetSettings(sourceHttpClient);
+        using var sourceClient = new ManagementClient(new Uri($"http://{sourceServer.HostName}:{sourceServer.ManagementPort}"), sourceServer.UserName, sourceServer.Password);
+        var settings = await RabbitMQMigrator.GetSettings(sourceClient);
         Logger.Log(LogType.Get_Settings_Done);
 
         // print just for test and log purposes
-        Logger.Log(LogType.Print_Settings_Start, "Print settings from Source server...");
-        SettingsPrinter.Print(settings);
-        Logger.Log(LogType.Print_Settings_Done);
+        Logger.Log(LogType.Log_Settings_Start, "Log settings from Source server...");
+        DataLogger.Log(settings);
+        Logger.Log(LogType.Log_Settings_Done);
 
         // TODO check applaying if get works
         /*
@@ -53,8 +55,8 @@ public class Program
         Console.ReadKey();
 
         Logger.Log(LogType.Create_Settings_Start, "Applying settings to Target server...");
-        using var targetHttpClient = new RabbitMQHttpClient($"http://{targetHostName}:{targetManagementPort}", targetUserName, targetPassword);
-        await RabbitMQMigrator.ApplySettings(targetHttpClient, settings);
+        using var targetClient = new ManagementClient(new Uri($"http://{targetServer.HostName}:{targetServer.ManagementPort}"), targetServer.UserName, targetServer.Password);
+        await RabbitMQMigrator.ApplySettings(targetClient, settings);
         Logger.Log(LogType.Create_Settings_Done);
         */
 

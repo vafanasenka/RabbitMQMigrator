@@ -1,28 +1,30 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
-namespace RabbitMQMigrator;
+namespace RabbitMQMigrator.Obsolete;
 
-public class SettingsPrinter
+[Obsolete("It used before replacement with EasyNetQ.Management.Client library")]
+public static class SettingsPrinter
 {
     public static void Print(Dictionary<string, object> settings)
     {
         var exchanges = (JArray)settings[Constants.Settings.ExchangesKey];
-        Logger.Log(LogType.Print_Exchanges_Start);
+        Logger.Log(LogType.Log_Exchanges_Start);
         foreach (var exchange in exchanges)
         {
             PrintExchange(exchange);
         }
 
         var queues = (JArray)settings[Constants.Settings.QueuesKey];
-        Logger.Log(LogType.Print_Queues_Start);
+        Logger.Log(LogType.Log_Queues_Start);
         foreach (var queue in queues)
         {
             PrintQueue(queue);
         }
-        
+
         var bindings = (JArray)settings[Constants.Settings.BindingsKey];
-        Logger.Log(LogType.Print_Bindings_Start);
+        Logger.Log(LogType.Log_Bindings_Start);
         foreach (var binding in bindings)
         {
             PrintBinding(binding);
@@ -34,8 +36,8 @@ public class SettingsPrinter
         var name = (string)exchange["name"];
         var type = (string)exchange["type"];
         var durable = (bool)exchange["durable"];
-        
-        Logger.Log(LogType.Print_Exchange_Done, $"name: {name}; type: {type}; durable: {durable}");
+
+        Logger.Log(LogType.Log_Exchange_Done, $"name: {name}; type: {type}; durable: {durable}");
     }
 
     public static void PrintQueue(JToken queue)
@@ -43,7 +45,7 @@ public class SettingsPrinter
         var name = (string)queue["name"];
         var durable = (bool)queue["durable"];
 
-        Logger.Log(LogType.Print_Queue_Done, $"name: {name}; durable: {durable}");
+        Logger.Log(LogType.Log_Queue_Done, $"name: {name}; durable: {durable}");
     }
 
     public static void PrintBinding(JToken binding)
@@ -52,6 +54,6 @@ public class SettingsPrinter
         var destination = (string)binding["destination"];
         var routingKey = (string)binding["routing_key"];
 
-        Logger.Log(LogType.Print_Binding_Done, $"source: {source}; destination: {destination}; routingKey: {routingKey}");
+        Logger.Log(LogType.Log_Binding_Done, $"source: {source}; destination: {destination}; routingKey: {routingKey}");
     }
 }
