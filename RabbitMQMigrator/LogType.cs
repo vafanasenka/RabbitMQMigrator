@@ -7,15 +7,15 @@ public enum LogType
     Connect,
     Connected,
 
-    Get_Settings_Start,
-    Get_Settings_Done,
+    Get_Components_Start,
+    Get_Components_Done,
 
     Create_Settings_Start,
     Create_Settings_Done,
 
     // log for debug & test
-    Log_Settings_Start,
-    Log_Settings_Done,
+    Log_Components_Start,
+    Log_Components_Done,
     Log_Exchanges_Start,
     Log_Exchange_Done,
     Log_Queues_Start,

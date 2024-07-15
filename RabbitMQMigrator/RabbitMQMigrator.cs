@@ -1,6 +1,7 @@
 ﻿using EasyNetQ.Management.Client;
 using EasyNetQ.Management.Client.Model;
 using RabbitMQMigrator.Factories;
+using RabbitMQMigrator.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,42 +10,29 @@ namespace RabbitMQMigrator;
 
 public static class RabbitMQMigrator
 {
-    public static async Task<Dictionary<string, object>> GetSettings(ManagementClient client)
+    public static async Task<ComponentModel> GetComponents(ManagementClient client)
     {
-        // TODO exclude exchanges with 'default' user:
-        // "user_who_performed_action": "rmq-internal"
         var exchangesTask = client.GetExchangesAsync();
         var queuesTask = client.GetQueuesAsync();
         var bindingsTask = client.GetBindingsAsync();
 
         await Task.WhenAll(queuesTask, exchangesTask, bindingsTask);
 
-        var settings = new Dictionary<string, object>
-        {
-            { Constants.Settings.ExchangesKey, exchangesTask.Result },
-            { Constants.Settings.QueuesKey, queuesTask.Result },
-            { Constants.Settings.BindingsKey, bindingsTask.Result }
-        };
-        
-        return settings;
+        return ComponentModelFactory.Create(exchangesTask.Result, queuesTask.Result, bindingsTask.Result);
     }
 
-    public static async Task<IEnumerable<Binding>> ApplySettings(ManagementClient client, Dictionary<string, object> settings)
+    public static async Task<IEnumerable<Binding>> ApplySettings(ManagementClient client, ComponentModel components)
     {
-        var exchanges = (IEnumerable<Exchange>)settings[Constants.Settings.ExchangesKey];
-        var queues = (IEnumerable<Queue>)settings[Constants.Settings.QueuesKey];
-        var bindings = (IEnumerable<Binding>)settings[Constants.Settings.BindingsKey];
-
         var tasks = Enumerable.Empty<Task>();
 
-        foreach (var exchange in exchanges)
+        foreach (var exchange in components.Exchanges)
         {
             var exchangeInfo = ExchangeInfoFactory.Create(exchange);
             var exchangeTask = client.CreateExchangeAsync(exchange.Vhost, exchangeInfo);
             _ = tasks.Append(exchangeTask);
         }
 
-        foreach (var queue in queues)
+        foreach (var queue in components.Queues)
         {
             var queueInfo = QueueInfoFactory.Create(queue);
             var queueTask = client.CreateQueueAsync(queue.Vhost, queueInfo);
@@ -53,10 +41,10 @@ public static class RabbitMQMigrator
 
         await Task.WhenAll(tasks);
 
-        tasks = Enumerable.Empty<Task>();
+        tasks = [];
         var errorBindings = Enumerable.Empty<Binding>();
 
-        foreach (var binding in bindings)
+        foreach (var binding in components.Bindings)
         {
             // we expect 2 possible DestinationType == "queue" or DestinationType == "exchange", log if not
             var bindingInfo = BindingInfoFactory.Create(binding);

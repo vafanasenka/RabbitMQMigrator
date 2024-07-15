@@ -32,13 +32,4 @@ public class Constants
 
         public const string Password = "Password";
     }
-
-    public class Settings
-    {
-        public const string QueuesKey = "Queues";
-
-        public const string ExchangesKey = "Exchanges";
-
-        public const string BindingsKey = "Bindings";
-    }
 }

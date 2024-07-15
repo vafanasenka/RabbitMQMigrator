@@ -36,18 +36,18 @@ public class Program
         Logger.Log(LogType.Connected);
         */
 
-        Console.WriteLine("Press any key to fetch settings from the Source server...");
+        Console.WriteLine("Press any key to fetch components from the Source server...");
         Console.ReadKey();
 
-        Logger.Log(LogType.Get_Settings_Start, "Fetching settings from Source server...");
+        Logger.Log(LogType.Get_Components_Start, "Fetching components from Source server...");
         using var sourceClient = new ManagementClient(new Uri($"http://{sourceServer.HostName}:{sourceServer.ManagementPort}"), sourceServer.UserName, sourceServer.Password);
-        var settings = await RabbitMQMigrator.GetSettings(sourceClient);
-        Logger.Log(LogType.Get_Settings_Done);
+        var components = await RabbitMQMigrator.GetComponents(sourceClient);
+        Logger.Log(LogType.Get_Components_Done);
 
         // print just for test and log purposes
-        Logger.Log(LogType.Log_Settings_Start, "Log settings from Source server...");
-        DataLogger.Log(settings);
-        Logger.Log(LogType.Log_Settings_Done);
+        Logger.Log(LogType.Log_Components_Start, "Log components from Source server...");
+        DataLogger.Log(components);
+        Logger.Log(LogType.Log_Components_Done);
 
         // TODO check applaying if get works
         /*

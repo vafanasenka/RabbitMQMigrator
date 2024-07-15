@@ -1,29 +1,26 @@
 ﻿using EasyNetQ.Management.Client.Model;
-using System.Collections.Generic;
+using RabbitMQMigrator.Models;
 
 namespace RabbitMQMigrator;
 
 public static class DataLogger
 {
-    public static void Log(Dictionary<string, object> settings)
+    public static void Log(ComponentModel components)
     {
-        var exchanges = (IEnumerable<Exchange>)settings[Constants.Settings.ExchangesKey];
         Logger.Log(LogType.Log_Exchanges_Start);
-        foreach (var exchange in exchanges)
+        foreach (var exchange in components.Exchanges)
         {
             LogExchange(exchange);
         }
 
-        var queues = (IEnumerable<Queue>)settings[Constants.Settings.QueuesKey];
         Logger.Log(LogType.Log_Queues_Start);
-        foreach (var queue in queues)
+        foreach (var queue in components.Queues)
         {
             LogQueue(queue);
         }
         
-        var bindings = (IEnumerable<Binding>)settings[Constants.Settings.BindingsKey];
         Logger.Log(LogType.Log_Bindings_Start);
-        foreach (var binding in bindings)
+        foreach (var binding in components.Bindings)
         {
             LogBinding(binding);
         }
