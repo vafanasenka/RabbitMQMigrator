@@ -7,23 +7,38 @@ public static class DataLogger
 {
     public static void Log(ComponentModel components)
     {
+        var counter = 0;
         Logger.Log(LogType.Log_Exchanges_Start);
+
         foreach (var exchange in components.Exchanges)
         {
             LogExchange(exchange);
+            counter++;
         }
 
+        Logger.Log(LogType.Log_Exchanges_Done, $"Exchages total count: {counter}");
+        counter = 0;
+
         Logger.Log(LogType.Log_Queues_Start);
+
         foreach (var queue in components.Queues)
         {
             LogQueue(queue);
+            counter++;
         }
-        
+
+        Logger.Log(LogType.Log_Queues_Done, $"Queues total count: {counter}");
+        counter = 0;
+
         Logger.Log(LogType.Log_Bindings_Start);
+
         foreach (var binding in components.Bindings)
         {
             LogBinding(binding);
+            counter++;
         }
+
+        Logger.Log(LogType.Log_Bindings_Done, $"Bindings total count: {counter}");
     }
 
     public static void LogExchange(Exchange exchange)

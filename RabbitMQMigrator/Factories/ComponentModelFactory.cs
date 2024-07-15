@@ -1,4 +1,5 @@
 ﻿using EasyNetQ.Management.Client.Model;
+using RabbitMQMigrator.Filters;
 using RabbitMQMigrator.Models;
 using System.Collections.Generic;
 
@@ -6,10 +7,11 @@ namespace RabbitMQMigrator.Factories;
 
 public static class ComponentModelFactory
 {
-    public static ComponentModel Create(IEnumerable<Exchange> exchanges, IEnumerable<Queue> queues, IEnumerable<Binding> bindings) => new()
-    {
-        Exchanges = ExchangesFilter.Filter(exchanges),
-        Queues = queues,
-        Bindings = bindings,
-    };
+    public static ComponentModel Create(IEnumerable<Exchange> exchanges, IEnumerable<Queue> queues, IEnumerable<Binding> bindings)
+        => new()
+        {
+            Exchanges = ExchangesFilter.Filter(exchanges),
+            Queues = queues,
+            Bindings = BindingsFilter.Filter(bindings),
+        };
 }
