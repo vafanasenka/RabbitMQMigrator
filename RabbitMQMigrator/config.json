@@ -7,7 +7,7 @@
     "AMQPPort": 5672
   },
   "TargetServer": {
-    "Url": "localhost",
+    "HostName": "localhost",
     "UserName": "guest",
     "Password": "guest",
     "ManagementPort": 15672,

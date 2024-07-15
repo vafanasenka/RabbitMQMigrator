@@ -28,13 +28,10 @@ public class Program
         using var sourceConnection = RabbitMQConnector.Connect(sourceServer.HostName, sourceServer.AMQPPort, sourceServer.UserName, sourceServer.Password);
         Logger.Log(LogType.Connected);
 
-        // TODO check applaying if get works
-        /*
         Logger.Log(LogType.Connect, "Connecting to Target server...");
         // AMQP connection
         using var targetConnection = RabbitMQConnector.Connect(targetServer.HostName, targetServer.AMQPPort, targetServer.UserName, targetServer.Password);
         Logger.Log(LogType.Connected);
-        */
 
         Console.WriteLine("Press any key to fetch components from the Source server...");
         Console.ReadKey();
@@ -49,16 +46,13 @@ public class Program
         DataLogger.Log(components);
         Logger.Log(LogType.Log_Components_Done);
 
-        // TODO check applaying if get works
-        /*
         Console.WriteLine("Press any key to apply settings to the Target server...");
         Console.ReadKey();
 
         Logger.Log(LogType.Create_Settings_Start, "Applying settings to Target server...");
         using var targetClient = new ManagementClient(new Uri($"http://{targetServer.HostName}:{targetServer.ManagementPort}"), targetServer.UserName, targetServer.Password);
-        await RabbitMQMigrator.ApplySettings(targetClient, settings);
+        await RabbitMQMigrator.ApplySettings(targetClient, components);
         Logger.Log(LogType.Create_Settings_Done);
-        */
 
         // I think we don't need to do attempt to migrate messages
         /*

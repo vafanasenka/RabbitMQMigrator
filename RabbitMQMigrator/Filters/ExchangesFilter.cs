@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RabbitMQMigrator;
+namespace RabbitMQMigrator.Filters;
 
 public static class ExchangesFilter
 {
@@ -16,9 +16,9 @@ public static class ExchangesFilter
 
     private static IEnumerable<Exchange> DoFilter(IEnumerable<Exchange> exchanges)
     {
-        var excludedNames = GetExcludedNames();
+        var excludedNames = GetSystemNames();
         return exchanges.Where(_ => !excludedNames.Contains(_.Name));
     }
 
-    private static string[] GetExcludedNames() => [string.Empty, "amq.direct", "amq.fanout", "amq.headers", "amq.match", "amq.rabbitmq.trace", "amq.topic"];
+    private static string[] GetSystemNames() => [string.Empty, "amq.direct", "amq.fanout", "amq.headers", "amq.match", "amq.rabbitmq.trace", "amq.topic"];
 }

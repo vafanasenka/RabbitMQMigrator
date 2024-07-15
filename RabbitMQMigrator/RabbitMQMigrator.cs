@@ -1,9 +1,8 @@
 ﻿using EasyNetQ.Management.Client;
-using EasyNetQ.Management.Client.Model;
 using RabbitMQMigrator.Factories;
 using RabbitMQMigrator.Models;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RabbitMQMigrator;
@@ -21,49 +20,101 @@ public static class RabbitMQMigrator
         return ComponentModelFactory.Create(exchangesTask.Result, queuesTask.Result, bindingsTask.Result);
     }
 
-    public static async Task<IEnumerable<Binding>> ApplySettings(ManagementClient client, ComponentModel components)
+    public static async Task ApplySettings(ManagementClient client, ComponentModel components)
     {
-        var tasks = Enumerable.Empty<Task>();
+        var counter = 0;
+        Logger.Log(LogType.Migrate_Exchanges_Start);
+        var tasks = new List<Task>();
 
         foreach (var exchange in components.Exchanges)
         {
             var exchangeInfo = ExchangeInfoFactory.Create(exchange);
-            var exchangeTask = client.CreateExchangeAsync(exchange.Vhost, exchangeInfo);
-            _ = tasks.Append(exchangeTask);
+            var exchangeTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await client.CreateExchangeAsync(exchange.Vhost, exchangeInfo);
+                    counter++;
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogType.Exception, $"Failed to create exchange: {exchange.Name}. Error: {e.Message}");
+                }
+            });
+
+            tasks.Add(exchangeTask);
         }
+
+        Logger.Log(LogType.Migrate_Exchanges_Start, $"Exchages to migrate count: {counter}");
+        Logger.Log(LogType.Migrate_Queues_Start);
+        counter = 0;
 
         foreach (var queue in components.Queues)
         {
             var queueInfo = QueueInfoFactory.Create(queue);
-            var queueTask = client.CreateQueueAsync(queue.Vhost, queueInfo);
-            _ = tasks.Append(queueTask);
+            var queueTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await client.CreateQueueAsync(queue.Vhost, queueInfo);
+                    counter++;
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogType.Exception, $"Failed to create queue: {queue.Name}. Error: {e.Message}");
+                }
+            });
+
+            tasks.Add(queueTask);
         }
 
+        Logger.Log(LogType.Migrate_Queues_Start, $"Queues to migrate count: {counter}");
+        
         await Task.WhenAll(tasks);
 
-        tasks = [];
-        var errorBindings = Enumerable.Empty<Binding>();
+        Logger.Log(LogType.Migrate_Exchanges_And_Queues_Done);
+
+        tasks.Clear();
+        Logger.Log(LogType.Migrate_Bindings_Start);
+        counter = 0;
 
         foreach (var binding in components.Bindings)
         {
             // we expect 2 possible DestinationType == "queue" or DestinationType == "exchange", log if not
             var bindingInfo = BindingInfoFactory.Create(binding);
-            if (binding.DestinationType == "queue")
+
+            var bindingTask = Task.Run(async () =>
             {
-                var bindingTask = client.CreateQueueBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
-                _ = tasks.Append(bindingTask);
-            } else if (binding.DestinationType == "exchange")
-            {
-                var bindingTask = client.CreateExchangeBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
-                _ = tasks.Append(bindingTask);
-            } else
-            {
-                _ = errorBindings.Append(binding);
-            }
+                try
+                {
+                    if (binding.DestinationType == "queue")
+                    {
+                        await client.CreateQueueBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
+                        counter++;
+                    }
+                    else if (binding.DestinationType == "exchange")
+                    {
+                        await client.CreateExchangeBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
+                        counter++;
+                    }
+                    else
+                    {
+                        Logger.Log(LogType.Error, $"Failed to create binding: {binding.DestinationType} is not handled");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogType.Exception, $"Failed to create binding: {binding.Source} -> {binding.Destination}. Error: {e.Message}");
+                }
+            });
+
+            tasks.Add(bindingTask);
         }
+
+        Logger.Log(LogType.Migrate_Bindings_Start, $"Bindings to migrate count: {counter}");
 
         await Task.WhenAll(tasks);
 
-        return errorBindings;
+        Logger.Log(LogType.Migrate_Bindings_Done);
     }
 }
