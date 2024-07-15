@@ -1,4 +1,4 @@
-﻿namespace RabbitMQMigrator;
+﻿namespace RabbitMQMigrator.Models;
 
 public class ServerModel
 {

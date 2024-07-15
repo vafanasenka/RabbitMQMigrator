@@ -9,26 +9,26 @@ public static class SettingsPrinter
 {
     public static void Print(Dictionary<string, object> settings)
     {
-        var exchanges = (JArray)settings[Constants.Settings.ExchangesKey];
-        Logger.Log(LogType.Log_Exchanges_Start);
-        foreach (var exchange in exchanges)
-        {
-            PrintExchange(exchange);
-        }
+        //var exchanges = (JArray)settings[Constants.Settings.ExchangesKey];
+        //Logger.Log(LogType.Log_Exchanges_Start);
+        //foreach (var exchange in exchanges)
+        //{
+        //    PrintExchange(exchange);
+        //}
 
-        var queues = (JArray)settings[Constants.Settings.QueuesKey];
-        Logger.Log(LogType.Log_Queues_Start);
-        foreach (var queue in queues)
-        {
-            PrintQueue(queue);
-        }
+        //var queues = (JArray)settings[Constants.Settings.QueuesKey];
+        //Logger.Log(LogType.Log_Queues_Start);
+        //foreach (var queue in queues)
+        //{
+        //    PrintQueue(queue);
+        //}
 
-        var bindings = (JArray)settings[Constants.Settings.BindingsKey];
-        Logger.Log(LogType.Log_Bindings_Start);
-        foreach (var binding in bindings)
-        {
-            PrintBinding(binding);
-        }
+        //var bindings = (JArray)settings[Constants.Settings.BindingsKey];
+        //Logger.Log(LogType.Log_Bindings_Start);
+        //foreach (var binding in bindings)
+        //{
+        //    PrintBinding(binding);
+        //}
     }
 
     public static void PrintExchange(JToken exchange)

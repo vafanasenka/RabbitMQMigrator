@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using RabbitMQMigrator.Models;
 using System;
 
 namespace RabbitMQMigrator.Factories;
