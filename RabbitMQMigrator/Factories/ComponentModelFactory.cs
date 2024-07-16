@@ -8,10 +8,13 @@ namespace RabbitMQMigrator.Factories;
 public static class ComponentModelFactory
 {
     public static ComponentModel Create(IEnumerable<Exchange> exchanges, IEnumerable<Queue> queues, IEnumerable<Binding> bindings)
-        => new()
+    {
+        var nameExceptions = new NameExceptions();
+        return new()
         {
-            Exchanges = ExchangesFilter.Filter(exchanges),
-            Queues = queues,
-            Bindings = BindingsFilter.Filter(bindings),
+            Exchanges = ExchangesFilter.Filter(exchanges, nameExceptions.GetForExchanges()),
+            Queues = QueuesFilter.Filter(queues, nameExceptions.GetForQueues()),
+            Bindings = BindingsFilter.Filter(bindings, nameExceptions.GetForBindings())
         };
+    }
 }

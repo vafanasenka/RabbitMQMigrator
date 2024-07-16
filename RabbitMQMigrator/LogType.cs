@@ -10,6 +10,9 @@ public enum LogType
     Get_Components_Start,
     Get_Components_Done,
 
+    Delete_Settings_Start,
+    Delete_Settings_Done,
+
     Create_Settings_Start,
     Create_Settings_Done,
 
@@ -30,19 +33,29 @@ public enum LogType
     Log_Binding_Done,
 
     Migrate_Exchanges_Start,
-    //Migrate_Exchanges_Done,
+    Migrate_Exchanges_Done,
     
     Migrate_Queues_Start,
-    //Migrate_Queues_Done,
-
-    Migrate_Exchanges_And_Queues_Done,
+    Migrate_Queues_Done,
 
     Migrate_Bindings_Start,
     Migrate_Bindings_Done,
 
     Migrate_Messages_Start,
     Migrate_Messages_Done,
-    
+
+    Delete_Exchanges_Start,
+    Delete_Exchanges_Done,
+
+    Delete_Queues_Start,
+    Delete_Queues_Done,
+
+    Delete_Bindings_Start,
+    Delete_Bindings_Done,
+
+    Delete_Messages_Start,
+    Delete_Messages_Done,
+
     Error,
     Exception,
     Done

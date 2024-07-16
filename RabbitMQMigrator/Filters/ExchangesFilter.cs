@@ -6,19 +6,13 @@ namespace RabbitMQMigrator.Filters;
 
 public static class ExchangesFilter
 {
-    public static IEnumerable<Exchange> Filter(IEnumerable<Exchange> exchanges)
+    public static IEnumerable<Exchange> Filter(IEnumerable<Exchange> exchanges, IEnumerable<string> excludedNames)
     {
-        if (exchanges == null || !exchanges.Any())
+        if (exchanges == null || !exchanges.Any() || excludedNames == null || !excludedNames.Any())
             return exchanges;
 
-        return DoFilter(exchanges);
+        return DoFilter(exchanges, excludedNames);
     }
 
-    private static IEnumerable<Exchange> DoFilter(IEnumerable<Exchange> exchanges)
-    {
-        var excludedNames = GetSystemNames();
-        return exchanges.Where(_ => !excludedNames.Contains(_.Name));
-    }
-
-    private static string[] GetSystemNames() => [string.Empty, "amq.direct", "amq.fanout", "amq.headers", "amq.match", "amq.rabbitmq.trace", "amq.topic"];
+    private static IEnumerable<Exchange> DoFilter(IEnumerable<Exchange> exchanges, IEnumerable<string> excludedNames) => exchanges.Where(_ => !excludedNames.Contains(_.Name));
 }

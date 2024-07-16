@@ -22,9 +22,9 @@ public static class RabbitMQMigrator
 
     public static async Task ApplySettings(ManagementClient client, ComponentModel components)
     {
-        var counter = 0;
-        Logger.Log(LogType.Migrate_Exchanges_Start);
         var tasks = new List<Task>();
+        Logger.Log(LogType.Migrate_Exchanges_Start);
+        var counter = 0;
 
         foreach (var exchange in components.Exchanges)
         {
@@ -46,6 +46,10 @@ public static class RabbitMQMigrator
         }
 
         Logger.Log(LogType.Migrate_Exchanges_Start, $"Exchages to migrate count: {counter}");
+        await Task.WhenAll(tasks);
+        Logger.Log(LogType.Migrate_Exchanges_Done);
+
+        tasks.Clear();
         Logger.Log(LogType.Migrate_Queues_Start);
         counter = 0;
 
@@ -69,10 +73,8 @@ public static class RabbitMQMigrator
         }
 
         Logger.Log(LogType.Migrate_Queues_Start, $"Queues to migrate count: {counter}");
-        
         await Task.WhenAll(tasks);
-
-        Logger.Log(LogType.Migrate_Exchanges_And_Queues_Done);
+        Logger.Log(LogType.Migrate_Queues_Done);
 
         tasks.Clear();
         Logger.Log(LogType.Migrate_Bindings_Start);
@@ -112,9 +114,88 @@ public static class RabbitMQMigrator
         }
 
         Logger.Log(LogType.Migrate_Bindings_Start, $"Bindings to migrate count: {counter}");
-
         await Task.WhenAll(tasks);
-
         Logger.Log(LogType.Migrate_Bindings_Done);
+    }
+
+    public static async Task DeleteSettings(ManagementClient client, ComponentModel components)
+    {
+        var tasks = new List<Task>();
+        Logger.Log(LogType.Delete_Bindings_Start);
+        var counter = 0;
+
+        foreach (var binding in components.Bindings)
+        {
+            var bindingTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await client.DeleteBindingAsync(binding);
+                    counter++;
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogType.Exception, $"Failed to delete binding: {binding.Source} -> {binding.Destination}. Error: {e.Message}");
+                }
+            });
+
+            tasks.Add(bindingTask);
+        }
+
+        Logger.Log(LogType.Delete_Bindings_Start, $"Bindings to delete count: {counter}");
+        await Task.WhenAll(tasks);
+        Logger.Log(LogType.Delete_Bindings_Done);
+
+        tasks.Clear();
+        Logger.Log(LogType.Delete_Queues_Start);
+        counter = 0;
+
+        foreach (var queue in components.Queues)
+        {
+            var queueTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await client.DeleteQueueAsync(queue.Vhost, queue.Name);
+                    counter++;
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogType.Exception, $"Failed to delete queue: {queue.Name}. Error: {e.Message}");
+                }
+            });
+
+            tasks.Add(queueTask);
+        }
+
+        Logger.Log(LogType.Delete_Queues_Start, $"Queues to delete count: {counter}");
+        await Task.WhenAll(tasks);
+        Logger.Log(LogType.Delete_Queues_Done);
+
+        tasks.Clear();
+        Logger.Log(LogType.Delete_Exchanges_Start);
+        counter = 0;
+
+        foreach (var exchange in components.Exchanges)
+        {
+            var exchangeTask = Task.Run(async () =>
+            {
+                try
+                {
+                    await client.DeleteExchangeAsync(exchange.Vhost, exchange.Name);
+                    counter++;
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(LogType.Exception, $"Failed to delete exchange: {exchange.Name}. Error: {e.Message}");
+                }
+            });
+
+            tasks.Add(exchangeTask);
+        }
+
+        Logger.Log(LogType.Delete_Exchanges_Start, $"Exchages to delete count: {counter}");
+        await Task.WhenAll(tasks);
+        Logger.Log(LogType.Delete_Exchanges_Done);
     }
 }
