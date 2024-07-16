@@ -46,15 +46,23 @@ public class Program
         DataLogger.Log(components);
         Logger.Log(LogType.Log_Components_Done);
 
-        Console.WriteLine("Press any key to apply settings to the Target server...");
-        Console.ReadKey();
-
-        Logger.Log(LogType.Create_Settings_Start, "Applying settings to Target server...");
         using var targetClient = new ManagementClient(new Uri($"http://{targetServer.HostName}:{targetServer.ManagementPort}"), targetServer.UserName, targetServer.Password);
-        await RabbitMQMigrator.ApplySettings(targetClient, components);
-        Logger.Log(LogType.Create_Settings_Done);
 
-        // I think we don't need to do attempt to migrate messages
+        if (WaitForKeyPress("Press 'Y' to DELETE settings from Target server or 'N' to continue..."))
+        {
+            Logger.Log(LogType.Delete_Settings_Start, "Delete settings from Target server...");
+            await RabbitMQMigrator.DeleteSettings(targetClient, components);
+            Logger.Log(LogType.Delete_Settings_Done);
+        }
+
+        if (WaitForKeyPress("Press 'Y' to APPLY settings to the Target server or 'N' to continue..."))
+        {
+            Logger.Log(LogType.Create_Settings_Start, "Applying settings to Target server...");
+            await RabbitMQMigrator.ApplySettings(targetClient, components);
+            Logger.Log(LogType.Create_Settings_Done);
+        }
+
+        // redevelop if we need to migrate messages
         /*
         Console.WriteLine("Press any key to migrate messages...");
         Console.ReadKey();
@@ -68,7 +76,23 @@ public class Program
         }
         */
 
-        Logger.Log(LogType.Done, "Migration completed.");
-        Console.WriteLine("Migration completed.");
+        Logger.Log(LogType.Done, "Process completed.");
+    }
+
+    static bool WaitForKeyPress(string message)
+    {
+        Console.WriteLine($"{message} (Y/N)");
+        while (true)
+        {
+            var key = Console.ReadKey(intercept: true).Key;
+            if (key == ConsoleKey.Y)
+            {
+                return true;
+            }
+            else if (key == ConsoleKey.N)
+            {
+                return false;
+            }
+        }
     }
 }
