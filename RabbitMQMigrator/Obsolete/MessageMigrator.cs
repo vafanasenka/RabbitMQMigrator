@@ -2,9 +2,9 @@
 using RabbitMQ.Client.Events;
 using System;
 
-namespace RabbitMQMigrator;
+namespace RabbitMQMigrator.Obsolete;
 
-[Obsolete("It not tested, just as an general idea")]
+[Obsolete("It not tested, just as an idea")]
 public class MessageMigrator
 {
     public static void MigrateMessages(IConnection sourceConnection, IConnection targetConnection, string queueName)

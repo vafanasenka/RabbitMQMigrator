@@ -9,24 +9,29 @@ namespace RabbitMQMigrator;
 
 public static class RabbitMQMigrator
 {
-    public static async Task<ComponentModel> GetComponents(ManagementClient client)
+    public static async Task<SettingModel> GetSettings(ManagementClient client)
     {
+        Logger.Log(LogType.Get_Settings_Start, "Fetching Settings from Source server...");
+
         var exchangesTask = client.GetExchangesAsync();
         var queuesTask = client.GetQueuesAsync();
         var bindingsTask = client.GetBindingsAsync();
 
         await Task.WhenAll(queuesTask, exchangesTask, bindingsTask);
 
-        return ComponentModelFactory.Create(exchangesTask.Result, queuesTask.Result, bindingsTask.Result);
+        var settings = SettingModelFactory.Create(exchangesTask.Result, queuesTask.Result, bindingsTask.Result);
+        Logger.Log(LogType.Get_Settings_Done);
+        return settings;
     }
 
-    public static async Task ApplySettings(ManagementClient client, ComponentModel components)
+    public static async Task ApplySettings(ManagementClient client, SettingModel settings)
     {
         var tasks = new List<Task>();
+        Logger.Log(LogType.Create_Settings_Start, "Applying Settings to Target server...");
         Logger.Log(LogType.Migrate_Exchanges_Start);
         var counter = 0;
 
-        foreach (var exchange in components.Exchanges)
+        foreach (var exchange in settings.Exchanges)
         {
             var exchangeInfo = ExchangeInfoFactory.Create(exchange);
             var exchangeTask = Task.Run(async () =>
@@ -34,7 +39,7 @@ public static class RabbitMQMigrator
                 try
                 {
                     await client.CreateExchangeAsync(exchange.Vhost, exchangeInfo);
-                    counter++;
+                    counter += 1;
                 }
                 catch (Exception e)
                 {
@@ -53,7 +58,7 @@ public static class RabbitMQMigrator
         Logger.Log(LogType.Migrate_Queues_Start);
         counter = 0;
 
-        foreach (var queue in components.Queues)
+        foreach (var queue in settings.Queues)
         {
             var queueInfo = QueueInfoFactory.Create(queue);
             var queueTask = Task.Run(async () =>
@@ -61,7 +66,7 @@ public static class RabbitMQMigrator
                 try
                 {
                     await client.CreateQueueAsync(queue.Vhost, queueInfo);
-                    counter++;
+                    counter += 1;
                 }
                 catch (Exception e)
                 {
@@ -80,7 +85,7 @@ public static class RabbitMQMigrator
         Logger.Log(LogType.Migrate_Bindings_Start);
         counter = 0;
 
-        foreach (var binding in components.Bindings)
+        foreach (var binding in settings.Bindings)
         {
             // we expect 2 possible DestinationType == "queue" or DestinationType == "exchange", log if not
             var bindingInfo = BindingInfoFactory.Create(binding);
@@ -92,12 +97,12 @@ public static class RabbitMQMigrator
                     if (binding.DestinationType == "queue")
                     {
                         await client.CreateQueueBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
-                        counter++;
+                        counter += 1;
                     }
                     else if (binding.DestinationType == "exchange")
                     {
                         await client.CreateExchangeBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
-                        counter++;
+                        counter += 1;
                     }
                     else
                     {
@@ -116,22 +121,24 @@ public static class RabbitMQMigrator
         Logger.Log(LogType.Migrate_Bindings_Start, $"Bindings to migrate count: {counter}");
         await Task.WhenAll(tasks);
         Logger.Log(LogType.Migrate_Bindings_Done);
+        Logger.Log(LogType.Create_Settings_Done);
     }
 
-    public static async Task DeleteSettings(ManagementClient client, ComponentModel components)
+    public static async Task DeleteSettings(ManagementClient client, SettingModel settings)
     {
         var tasks = new List<Task>();
+        Logger.Log(LogType.Delete_Settings_Start, "Delete Settings from Target server...");
         Logger.Log(LogType.Delete_Bindings_Start);
         var counter = 0;
 
-        foreach (var binding in components.Bindings)
+        foreach (var binding in settings.Bindings)
         {
             var bindingTask = Task.Run(async () =>
             {
                 try
                 {
                     await client.DeleteBindingAsync(binding);
-                    counter++;
+                    counter += 1;
                 }
                 catch (Exception e)
                 {
@@ -150,14 +157,14 @@ public static class RabbitMQMigrator
         Logger.Log(LogType.Delete_Queues_Start);
         counter = 0;
 
-        foreach (var queue in components.Queues)
+        foreach (var queue in settings.Queues)
         {
             var queueTask = Task.Run(async () =>
             {
                 try
                 {
                     await client.DeleteQueueAsync(queue.Vhost, queue.Name);
-                    counter++;
+                    counter += 1;
                 }
                 catch (Exception e)
                 {
@@ -176,14 +183,14 @@ public static class RabbitMQMigrator
         Logger.Log(LogType.Delete_Exchanges_Start);
         counter = 0;
 
-        foreach (var exchange in components.Exchanges)
+        foreach (var exchange in settings.Exchanges)
         {
             var exchangeTask = Task.Run(async () =>
             {
                 try
                 {
                     await client.DeleteExchangeAsync(exchange.Vhost, exchange.Name);
-                    counter++;
+                    counter += 1;
                 }
                 catch (Exception e)
                 {
@@ -197,5 +204,6 @@ public static class RabbitMQMigrator
         Logger.Log(LogType.Delete_Exchanges_Start, $"Exchages to delete count: {counter}");
         await Task.WhenAll(tasks);
         Logger.Log(LogType.Delete_Exchanges_Done);
+        Logger.Log(LogType.Delete_Settings_Done);
     }
 }

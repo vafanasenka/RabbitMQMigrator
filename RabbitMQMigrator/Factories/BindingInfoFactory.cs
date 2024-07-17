@@ -7,7 +7,7 @@ public static class BindingInfoFactory
 {
     public static BindingInfo Create(Binding binding)
     {
-        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(binding, nameof(binding));
 
         return DoCreate(binding);
     }

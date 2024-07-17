@@ -8,7 +8,7 @@ public static class ServerModelFactory
 {
     public static ServerModel Create(JToken configuration)
     {
-        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
 
         return DoCreate(configuration);
     }

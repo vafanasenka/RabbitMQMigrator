@@ -5,15 +5,16 @@ namespace RabbitMQMigrator;
 
 public static class DataLogger
 {
-    public static void Log(ComponentModel components)
+    public static void Log(SettingModel settings)
     {
+        Logger.Log(LogType.Log_Settings_Start, "Log Settings from Source server...");
         var counter = 0;
         Logger.Log(LogType.Log_Exchanges_Start);
 
-        foreach (var exchange in components.Exchanges)
+        foreach (var exchange in settings.Exchanges)
         {
             LogExchange(exchange);
-            counter++;
+            counter += 1;
         }
 
         Logger.Log(LogType.Log_Exchanges_Done, $"Exchages total count: {counter}");
@@ -21,10 +22,10 @@ public static class DataLogger
 
         Logger.Log(LogType.Log_Queues_Start);
 
-        foreach (var queue in components.Queues)
+        foreach (var queue in settings.Queues)
         {
             LogQueue(queue);
-            counter++;
+            counter += 1;
         }
 
         Logger.Log(LogType.Log_Queues_Done, $"Queues total count: {counter}");
@@ -32,13 +33,14 @@ public static class DataLogger
 
         Logger.Log(LogType.Log_Bindings_Start);
 
-        foreach (var binding in components.Bindings)
+        foreach (var binding in settings.Bindings)
         {
             LogBinding(binding);
-            counter++;
+            counter += 1;
         }
 
         Logger.Log(LogType.Log_Bindings_Done, $"Bindings total count: {counter}");
+        Logger.Log(LogType.Log_Settings_Done);
     }
 
     public static void LogExchange(Exchange exchange)
