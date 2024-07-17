@@ -7,8 +7,8 @@ public enum LogType
     Connect,
     Connected,
 
-    Get_Components_Start,
-    Get_Components_Done,
+    Get_Settings_Start,
+    Get_Settings_Done,
 
     Delete_Settings_Start,
     Delete_Settings_Done,
@@ -17,8 +17,8 @@ public enum LogType
     Create_Settings_Done,
 
     // log for debug & test
-    Log_Components_Start,
-    Log_Components_Done,
+    Log_Settings_Start,
+    Log_Settings_Done,
 
     Log_Exchanges_Start,
     Log_Exchanges_Done,
@@ -42,6 +42,7 @@ public enum LogType
     Migrate_Bindings_Done,
 
     Migrate_Messages_Start,
+    Migrate_Message,
     Migrate_Messages_Done,
 
     Delete_Exchanges_Start,

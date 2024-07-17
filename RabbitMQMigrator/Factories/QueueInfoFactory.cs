@@ -7,7 +7,7 @@ public static class QueueInfoFactory
 {
     public static QueueInfo Create(Queue queue)
     {
-        ArgumentNullException.ThrowIfNull(queue);
+        ArgumentNullException.ThrowIfNull(queue, nameof(queue));
 
         return DoCreate(queue);
     }

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace RabbitMQMigrator.Factories;
 
-public static class ComponentModelFactory
+public static class SettingModelFactory
 {
-    public static ComponentModel Create(IEnumerable<Exchange> exchanges, IEnumerable<Queue> queues, IEnumerable<Binding> bindings)
+    public static SettingModel Create(IEnumerable<Exchange> exchanges, IEnumerable<Queue> queues, IEnumerable<Binding> bindings)
     {
         var nameExceptions = new NameExceptions();
         return new()
