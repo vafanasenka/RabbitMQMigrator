@@ -1,8 +1,9 @@
 ﻿using RabbitMQ.Client;
+using RabbitMQMigrator.Loggers;
 using RabbitMQMigrator.Models;
 using System;
 
-namespace RabbitMQMigrator;
+namespace RabbitMQMigrator.Migrators;
 
 public static class RabbitMQConnector
 {

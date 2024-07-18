@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace RabbitMQMigrator;
+namespace RabbitMQMigrator.Providers;
 
 public class ConfigurationProvider
 {

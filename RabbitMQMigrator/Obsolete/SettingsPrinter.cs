@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using RabbitMQMigrator.Loggers;
 using System;
 using System.Collections.Generic;
 
@@ -37,7 +38,7 @@ public static class SettingsPrinter
         var type = (string)exchange["type"];
         var durable = (bool)exchange["durable"];
 
-        Logger.Log(LogType.Log_Exchange_Done, $"name: {name}; type: {type}; durable: {durable}");
+        Logger.Log(LogType.Log_Exchange, $"name: {name}; type: {type}; durable: {durable}");
     }
 
     public static void PrintQueue(JToken queue)
@@ -45,7 +46,7 @@ public static class SettingsPrinter
         var name = (string)queue["name"];
         var durable = (bool)queue["durable"];
 
-        Logger.Log(LogType.Log_Queue_Done, $"name: {name}; durable: {durable}");
+        Logger.Log(LogType.Log_Queue, $"name: {name}; durable: {durable}");
     }
 
     public static void PrintBinding(JToken binding)
@@ -54,6 +55,6 @@ public static class SettingsPrinter
         var destination = (string)binding["destination"];
         var routingKey = (string)binding["routing_key"];
 
-        Logger.Log(LogType.Log_Binding_Done, $"source: {source}; destination: {destination}; routingKey: {routingKey}");
+        Logger.Log(LogType.Log_Binding, $"source: {source}; destination: {destination}; routingKey: {routingKey}");
     }
 }
