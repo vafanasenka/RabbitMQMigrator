@@ -1,11 +1,12 @@
 ﻿using EasyNetQ.Management.Client.Model;
 using RabbitMQ.Client;
+using RabbitMQMigrator.Loggers;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RabbitMQMigrator.Migrator;
+namespace RabbitMQMigrator.Migrators;
 
 public class MessageMigrator
 {
@@ -38,7 +39,7 @@ public class MessageMigrator
 
             var queueName = queue.Name;
             var result = sourceChannel.BasicGet(queueName, autoAck: false);
-            Logger.Log(LogType.Migrate_Message, $"Queue: {queueName}");
+            Logger.Log(LogType.Migrate_Message, $"from Queue: {queueName}");
 
             while (result != null)
             {
@@ -59,7 +60,7 @@ public class MessageMigrator
                         //sourceChannel.BasicAck(deliveryTag: result.DeliveryTag, multiple: false);
 
                         counter += 1;
-                        Logger.Log(LogType.Migrate_Message, $"Message number {counter} : {message}");
+                        Logger.Log(LogType.Migrate_Message, $"Message {counter} : {message}");
                     });
                 }
 

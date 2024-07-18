@@ -1,9 +1,9 @@
 ﻿using EasyNetQ.Management.Client.Model;
 using RabbitMQMigrator.Models;
 
-namespace RabbitMQMigrator;
+namespace RabbitMQMigrator.Loggers;
 
-public static class DataLogger
+public static class SettingsLogger
 {
     public static void Log(SettingModel settings)
     {
@@ -45,16 +45,16 @@ public static class DataLogger
 
     public static void LogExchange(Exchange exchange)
     {
-        Logger.Log(LogType.Log_Exchange_Done, $"Vhost: {exchange.Vhost}; name: {exchange.Name}; type: {exchange.Type}; durable: {exchange.Durable}; AutoDelete: {exchange.AutoDelete}; Internal: {exchange.Internal}");
+        Logger.Log(LogType.Log_Exchange, $"Vhost: {exchange.Vhost}; name: {exchange.Name}; type: {exchange.Type}; durable: {exchange.Durable}; AutoDelete: {exchange.AutoDelete}; Internal: {exchange.Internal}");
     }
 
     public static void LogQueue(Queue queue)
     {
-        Logger.Log(LogType.Log_Queue_Done, $"Vhost: {queue.Vhost}; name: {queue.Name}; durable: {queue.Durable}; AutoDelete: {queue.AutoDelete}");
+        Logger.Log(LogType.Log_Queue, $"Vhost: {queue.Vhost}; name: {queue.Name}; durable: {queue.Durable}; AutoDelete: {queue.AutoDelete}");
     }
 
     public static void LogBinding(Binding binding)
     {
-        Logger.Log(LogType.Log_Binding_Done, $"Vhost: {binding.Vhost}; source: {binding.Source}; destination: {binding.Destination}; routingKey: {binding.RoutingKey}");
+        Logger.Log(LogType.Log_Binding, $"Vhost: {binding.Vhost}; source: {binding.Source}; destination: {binding.Destination}; routingKey: {binding.RoutingKey}");
     }
 }

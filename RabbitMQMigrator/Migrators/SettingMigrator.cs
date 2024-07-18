@@ -1,21 +1,34 @@
 ﻿using EasyNetQ.Management.Client;
 using RabbitMQMigrator.Factories;
+using RabbitMQMigrator.Loggers;
 using RabbitMQMigrator.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RabbitMQMigrator;
+namespace RabbitMQMigrator.Migrators;
 
-public static class RabbitMQMigrator
+public class SettingMigrator
 {
-    public static async Task<SettingModel> GetSettings(ManagementClient client)
+    private readonly ManagementClient sourceClient;
+    private readonly ManagementClient targetClient;
+
+    public SettingMigrator(ManagementClient sourceClient, ManagementClient targetClient)
+    {
+        ArgumentNullException.ThrowIfNull(sourceClient, nameof(sourceClient));
+        ArgumentNullException.ThrowIfNull(targetClient, nameof(targetClient));
+
+        this.sourceClient = sourceClient;
+        this.targetClient = targetClient;
+    }
+
+    public async Task<SettingModel> GetSettings()
     {
         Logger.Log(LogType.Get_Settings_Start, "Fetching Settings from Source server...");
 
-        var exchangesTask = client.GetExchangesAsync();
-        var queuesTask = client.GetQueuesAsync();
-        var bindingsTask = client.GetBindingsAsync();
+        var exchangesTask = sourceClient.GetExchangesAsync();
+        var queuesTask = sourceClient.GetQueuesAsync();
+        var bindingsTask = sourceClient.GetBindingsAsync();
 
         await Task.WhenAll(queuesTask, exchangesTask, bindingsTask);
 
@@ -24,7 +37,7 @@ public static class RabbitMQMigrator
         return settings;
     }
 
-    public static async Task ApplySettings(ManagementClient client, SettingModel settings)
+    public async Task ApplySettings(SettingModel settings)
     {
         var tasks = new List<Task>();
         Logger.Log(LogType.Create_Settings_Start, "Applying Settings to Target server...");
@@ -38,7 +51,7 @@ public static class RabbitMQMigrator
             {
                 try
                 {
-                    await client.CreateExchangeAsync(exchange.Vhost, exchangeInfo);
+                    await targetClient.CreateExchangeAsync(exchange.Vhost, exchangeInfo);
                     counter += 1;
                 }
                 catch (Exception e)
@@ -65,7 +78,7 @@ public static class RabbitMQMigrator
             {
                 try
                 {
-                    await client.CreateQueueAsync(queue.Vhost, queueInfo);
+                    await targetClient.CreateQueueAsync(queue.Vhost, queueInfo);
                     counter += 1;
                 }
                 catch (Exception e)
@@ -96,12 +109,12 @@ public static class RabbitMQMigrator
                 {
                     if (binding.DestinationType == "queue")
                     {
-                        await client.CreateQueueBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
+                        await targetClient.CreateQueueBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
                         counter += 1;
                     }
                     else if (binding.DestinationType == "exchange")
                     {
-                        await client.CreateExchangeBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
+                        await targetClient.CreateExchangeBindingAsync(binding.Vhost, binding.Source, binding.Destination, bindingInfo);
                         counter += 1;
                     }
                     else
@@ -124,7 +137,7 @@ public static class RabbitMQMigrator
         Logger.Log(LogType.Create_Settings_Done);
     }
 
-    public static async Task DeleteSettings(ManagementClient client, SettingModel settings)
+    public async Task DeleteSettings(SettingModel settings)
     {
         var tasks = new List<Task>();
         Logger.Log(LogType.Delete_Settings_Start, "Delete Settings from Target server...");
@@ -137,7 +150,7 @@ public static class RabbitMQMigrator
             {
                 try
                 {
-                    await client.DeleteBindingAsync(binding);
+                    await targetClient.DeleteBindingAsync(binding);
                     counter += 1;
                 }
                 catch (Exception e)
@@ -163,7 +176,7 @@ public static class RabbitMQMigrator
             {
                 try
                 {
-                    await client.DeleteQueueAsync(queue.Vhost, queue.Name);
+                    await targetClient.DeleteQueueAsync(queue.Vhost, queue.Name);
                     counter += 1;
                 }
                 catch (Exception e)
@@ -189,7 +202,7 @@ public static class RabbitMQMigrator
             {
                 try
                 {
-                    await client.DeleteExchangeAsync(exchange.Vhost, exchange.Name);
+                    await targetClient.DeleteExchangeAsync(exchange.Vhost, exchange.Name);
                     counter += 1;
                 }
                 catch (Exception e)

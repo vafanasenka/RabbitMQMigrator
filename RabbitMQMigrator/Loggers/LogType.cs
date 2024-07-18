@@ -1,4 +1,4 @@
-﻿namespace RabbitMQMigrator;
+﻿namespace RabbitMQMigrator.Loggers;
 
 public enum LogType
 {
@@ -22,19 +22,19 @@ public enum LogType
 
     Log_Exchanges_Start,
     Log_Exchanges_Done,
-    Log_Exchange_Done,
-    
+    Log_Exchange,
+
     Log_Queues_Start,
     Log_Queues_Done,
-    Log_Queue_Done,
-    
+    Log_Queue,
+
     Log_Bindings_Start,
     Log_Bindings_Done,
-    Log_Binding_Done,
+    Log_Binding,
 
     Migrate_Exchanges_Start,
     Migrate_Exchanges_Done,
-    
+
     Migrate_Queues_Start,
     Migrate_Queues_Done,
 

@@ -1,6 +1,8 @@
 ﻿using EasyNetQ.Management.Client;
 using RabbitMQMigrator.Factories;
-using RabbitMQMigrator.Migrator;
+using RabbitMQMigrator.Loggers;
+using RabbitMQMigrator.Migrators;
+using RabbitMQMigrator.Providers;
 using System;
 using System.Threading.Tasks;
 
@@ -29,46 +31,30 @@ public class Program
         Console.ReadKey();
 
         using var sourceClient = new ManagementClient(new Uri($"http://{sourceServer.HostName}:{sourceServer.ManagementPort}"), sourceServer.UserName, sourceServer.Password);
-        var settings = await RabbitMQMigrator.GetSettings(sourceClient);
+        using var targetClient = new ManagementClient(new Uri($"http://{targetServer.HostName}:{targetServer.ManagementPort}"), targetServer.UserName, targetServer.Password);
+        var settingMigrator = new SettingMigrator(sourceClient, targetClient);
+        
+        var settings = await settingMigrator.GetSettings();
 
         // for test and log purposes
-        DataLogger.Log(settings);
+        SettingsLogger.Log(settings);
 
-        using var targetClient = new ManagementClient(new Uri($"http://{targetServer.HostName}:{targetServer.ManagementPort}"), targetServer.UserName, targetServer.Password);
-
-        if (WaitForKeyPress("Press 'Y' to DELETE previously imported Settings from Target server or 'N' to continue..."))
+        if (KeyHandler.WaitingForYNKeyPress("Press 'Y' to DELETE previously imported Settings from Target server or 'N' to continue..."))
         {
-            await RabbitMQMigrator.DeleteSettings(targetClient, settings);
+            await settingMigrator.DeleteSettings(settings);
         }
 
-        if (WaitForKeyPress("Press 'Y' to APPLY settings to the Target server or 'N' to continue..."))
+        if (KeyHandler.WaitingForYNKeyPress("Press 'Y' to APPLY settings to the Target server or 'N' to continue..."))
         {
-            await RabbitMQMigrator.ApplySettings(targetClient, settings);
+            await settingMigrator.ApplySettings(settings);
         }
 
-        if (WaitForKeyPress("Press 'Y' to start migrating messages or 'N' to continue..."))
+        if (KeyHandler.WaitingForYNKeyPress("Press 'Y' to start migrating MESSAGES or 'N' to continue..."))
         {
-            var migrator = new MessageMigrator(sourceConnection, targetConnection, settings.Queues);
-            await migrator.Migrate();
+            var messageMigrator = new MessageMigrator(sourceConnection, targetConnection, settings.Queues);
+            await messageMigrator.Migrate();
         }
 
         Logger.Log(LogType.Done, "Process completed.");
-    }
-
-    static bool WaitForKeyPress(string message)
-    {
-        Console.WriteLine($"{message} (Y/N)");
-        while (true)
-        {
-            var key = Console.ReadKey(intercept: true).Key;
-            if (key == ConsoleKey.Y)
-            {
-                return true;
-            }
-            else if (key == ConsoleKey.N)
-            {
-                return false;
-            }
-        }
     }
 }
